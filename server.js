@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const errorHandler = require('./middleware/error')
 const colors = require('colors');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db')
 
 
@@ -16,6 +17,7 @@ connectDB();
 
 // Route files
 const bootcamps = require('./routes/bootcamps');
+const auth = require('./routes/auth');
 
 const app = express();
 
@@ -23,14 +25,17 @@ const app = express();
 // Body parser
 app.use(express.json());
 
+// Cookie Parser
+app.use(cookieParser());
+
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-
 //Mount routers
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/auth', auth);
 
 app.use(errorHandler);
 
@@ -44,6 +49,7 @@ const server = app.listen(PORT, () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
     console.log(`Error: ${err.message}`);
-    //Close server && exit process
+    // Close server && exit process
     server.close(() => process.exit(1));
 });
+
